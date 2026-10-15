@@ -21,92 +21,131 @@ It connects a Discord server to a Fireshare instance so members can create and m
 - Non-root container
 - Read-only container filesystem
 - No Docker socket access required
+- Prebuilt `linux/amd64` and `linux/arm64` container images
 
-## How It Works
+## Deployment Model
 
-When a Discord member receives the configured onboarding role, Firestarter sends them a private onboarding prompt.
+Normal users do **not** need to clone this repository or build Firestarter from source.
 
-The member can then create a Fireshare contributor account without receiving Fireshare administrator credentials.
+Firestarter is published as a prebuilt container image on GitHub Container Registry:
 
-```
-Discord Member
-      │
-      │ onboarding role
-      ▼
-Firestarter Discord Bot
-      │
-      │ verifies membership
-      ▼
-Account Registration
-      │
-      │ Fireshare Admin API
-      ▼
-Fireshare Contributor Account
+```text
+ghcr.io/theohsin/firestarter:1.0.0-rc2
 ```
 
-## Your Discord Bot
+You can use that image from your own Docker Compose file, Portainer stack, or another container-management platform.
 
-Firestarter does **not** provide a shared Discord bot.
-
-Each Firestarter installation should use its own Discord application and bot.
-
-During setup, Firestarter generates an invite link for the Discord bot associated with the token you entered.
-
-That link adds **your bot** to **your Discord server**.
-
-## Requirements
-
-- Docker
-- Docker Compose
-- A running Fireshare instance
-- A Discord server
-- A Discord application and bot
-- A dedicated Fireshare administrator account for Firestarter
+The GitHub repository contains the source code and a reference Compose configuration, but the repository itself is not required to run Firestarter.
 
 ## Quick Start
 
-Clone Firestarter:
+Create a directory for Firestarter:
 
 ```bash
-git clone https://github.com/TheOhSin/firestarter.git
+mkdir firestarter
 cd firestarter
 ```
 
-Create the local environment file:
+Create a `compose.yml` with the following example:
 
-```bash
-cp .env.example .env
-```
+```yaml
+services:
+  firestarter:
+    image: ghcr.io/theohsin/firestarter:1.0.0-rc2
+    container_name: firestarter
+    restart: unless-stopped
 
-For LAN access, edit `.env` and set:
+    ports:
+      - "8090:8090"
 
-```env
-FIRESTARTER_BIND_IP=192.168.1.10
-```
+    environment:
+      DATABASE_PATH: /data/bot.db
+      WEB_PORT: 8090
+      WEB_SECURE_COOKIES: "false"
 
-For local or reverse-proxy-only access, leave:
+    volumes:
+      - firestarter-data:/data
 
-```env
-FIRESTARTER_BIND_IP=127.0.0.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    read_only: true
+
+    tmpfs:
+      - /tmp
+
+    cap_drop:
+      - ALL
+
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  firestarter-data:
 ```
 
 Start Firestarter:
 
 ```bash
-docker compose up -d --build
+docker compose up -d
+```
+
+Docker will automatically pull the Firestarter image from GHCR if it is not already present locally.
+
+Check the container:
+
+```bash
+docker compose ps
 ```
 
 Then open:
 
-```
+```text
 http://YOUR_SERVER_IP:8090
 ```
 
-The first-run WebUI will guide you through the rest of the configuration.
+The first-run WebUI will guide you through the remaining configuration.
+
+## Port Binding
+
+The example above publishes Firestarter on all host interfaces:
+
+```yaml
+ports:
+  - "8090:8090"
+```
+
+To bind Firestarter to a specific LAN address instead:
+
+```yaml
+ports:
+  - "192.168.1.50:8090:8090"
+```
+
+For reverse-proxy-only or local-host access:
+
+```yaml
+ports:
+  - "127.0.0.1:8090:8090"
+```
+
+## Image Versions
+
+For the current release candidate, use:
+
+```yaml
+image: ghcr.io/theohsin/firestarter:1.0.0-rc2
+```
+
+Pinning a version is recommended for predictable deployments.
+
+After the first stable release, `latest` will point to the current stable Firestarter release. Release-candidate tags will not become `latest`.
 
 ## First-Run Setup
 
-Firestarter configures:
+Firestarter configures application settings through the WebUI rather than requiring Discord or Fireshare credentials in Docker Compose.
+
+The setup wizard covers:
 
 1. Web administrator account
 2. Instance name
@@ -116,27 +155,35 @@ Firestarter configures:
 6. Fireshare administrator connection
 7. Public Fireshare URL
 
-Discord and Fireshare credentials are entered through the WebUI and are not stored in `.env`.
+Discord and Fireshare credentials are stored by Firestarter and are not required in the Compose file.
 
-## Discord Setup
+## Your Discord Bot
+
+Firestarter does **not** provide a shared Discord bot.
+
+Each Firestarter installation should use its own Discord application and bot.
+
+During setup, Firestarter validates the bot token you enter and generates an invite link for that specific bot.
+
+That link adds **your bot** to **your Discord server**.
+
+### Discord Requirements
 
 Create a Discord application and bot in the Discord Developer Portal.
 
 Enable:
 
-```
+```text
 Server Members Intent
 ```
 
 under:
 
-```
+```text
 Bot → Privileged Gateway Intents
 ```
 
 Message Content Intent is not required for the normal Firestarter onboarding flow.
-
-Paste your bot token into Firestarter during setup. Firestarter validates the token and generates an authorization link for that bot.
 
 ## Fireshare Setup
 
@@ -152,7 +199,7 @@ Firestarter uses it to:
 
 Contributor accounts created by Firestarter use:
 
-```
+```text
 view_private
 upload
 edit_own
@@ -160,43 +207,85 @@ delete_own
 manage_tags
 ```
 
-## Docker Configuration
+## Compose Options
 
-The `.env` file contains deployment settings only.
+The minimum useful environment configuration is:
 
-Example:
-
-```env
-APP_VERSION=1.0.0-rc2
-FIRESTARTER_BIND_IP=127.0.0.1
-WEB_PORT=8090
-DATABASE_PATH=/data/bot.db
-FIRESTARTER_DATA_VOLUME=firestarter-data
-WEB_SECURE_COOKIES=false
-FIRESHARE_HOST_ALIAS=host.docker.internal
+```yaml
+environment:
+  DATABASE_PATH: /data/bot.db
+  WEB_PORT: 8090
+  WEB_SECURE_COOKIES: "false"
 ```
 
-### HTTPS
+### `DATABASE_PATH`
 
-When the Firestarter WebUI is served through HTTPS, set:
+Default:
 
-```env
-WEB_SECURE_COOKIES=true
+```text
+/data/bot.db
 ```
 
-Leave it disabled when accessing the WebUI directly over plain HTTP.
+This should normally remain inside `/data` so it persists in the Docker volume.
+
+### `WEB_PORT`
+
+Default:
+
+```text
+8090
+```
+
+If you change the internal WebUI port, update the Compose port mapping as well.
+
+### `WEB_SECURE_COOKIES`
+
+Use:
+
+```yaml
+WEB_SECURE_COOKIES: "false"
+```
+
+for direct LAN HTTP access.
+
+When the Firestarter WebUI itself is served through HTTPS, use:
+
+```yaml
+WEB_SECURE_COOKIES: "true"
+```
+
+### Fireshare on the Docker Host
+
+The reference Compose includes:
+
+```yaml
+extra_hosts:
+  - "host.docker.internal:host-gateway"
+```
+
+This gives the container a reliable hostname for reaching services on the Docker host.
+
+If your Fireshare deployment uses another Docker network or remote host, configure connectivity appropriately for your environment.
 
 ## Persistent Data
 
 Persistent state is stored inside the container at `/data`.
 
-By default, Docker manages this using the named volume:
+The recommended Compose configuration uses a Docker named volume:
 
-```text
-firestarter-data
+```yaml
+volumes:
+  - firestarter-data:/data
 ```
 
-This avoids host-directory ownership problems during first-run setup.
+with:
+
+```yaml
+volumes:
+  firestarter-data:
+```
+
+Using a named volume avoids host-directory ownership problems during first-run setup.
 
 The volume may contain:
 
@@ -208,11 +297,11 @@ bot.db
 
 Do not delete the volume unless you intentionally want to reset Firestarter.
 
-Never commit or publish Firestarter's persistent data.
+Never publish Firestarter's persistent data or encryption keys.
 
 ## Security
 
-Firestarter:
+The recommended Firestarter container configuration:
 
 - runs as a non-root user
 - uses a read-only root filesystem
@@ -221,11 +310,26 @@ Firestarter:
 - stores writable state only in `/data`
 - does not require Docker socket access
 
-Sensitive runtime configuration is encrypted at rest using a locally generated key stored in the persistent data directory.
+Sensitive runtime configuration is encrypted at rest using a locally generated key stored in the persistent data volume.
 
 Do not expose the Firestarter WebUI directly to the public Internet without HTTPS and appropriate access controls.
 
-## Health
+## Updating
+
+If you pin a specific Firestarter version, update the image tag in your Compose file and run:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+For example:
+
+```yaml
+image: ghcr.io/theohsin/firestarter:1.0.0-rc2
+```
+
+## Health and Logs
 
 Check Firestarter:
 
@@ -239,12 +343,24 @@ View logs:
 docker compose logs -f firestarter
 ```
 
+## Building from Source
+
+Building from source is intended for development or contributors. It is **not** required for normal installation.
+
+```bash
+git clone https://github.com/TheOhSin/Firestarter.git
+cd Firestarter
+docker build -t firestarter-dev .
+```
+
+Normal users should use the published GHCR image instead.
+
 ## Release Status
 
 Current release candidate:
 
-```
+```text
 1.0.0-rc2
 ```
 
-Firestarter is currently undergoing clean-install testing before the stable `v1.0.0` release.
+A clean installation using the published multi-architecture GHCR image and Docker-managed persistent volume has been successfully tested.
