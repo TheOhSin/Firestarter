@@ -167,11 +167,11 @@ The `.env` file contains deployment settings only.
 Example:
 
 ```env
-APP_VERSION=1.0.0-rc1
+APP_VERSION=1.0.0-rc2
 FIRESTARTER_BIND_IP=127.0.0.1
 WEB_PORT=8090
 DATABASE_PATH=/data/bot.db
-FIRESTARTER_DATA_DIR=./data
+FIRESTARTER_DATA_VOLUME=firestarter-data
 WEB_SECURE_COOKIES=false
 FIRESHARE_HOST_ALIAS=host.docker.internal
 ```
@@ -188,23 +188,27 @@ Leave it disabled when accessing the WebUI directly over plain HTTP.
 
 ## Persistent Data
 
-Persistent state is stored in `/data`.
+Persistent state is stored inside the container at `/data`.
 
-With the default Compose configuration this maps to:
+By default, Docker manages this using the named volume:
 
+```text
+firestarter-data
 ```
-./data
-```
 
-This may contain:
+This avoids host-directory ownership problems during first-run setup.
 
-```
+The volume may contain:
+
+```text
 bot.db
 .firestarter-key
 .web-session-secret
 ```
 
-Never commit or publish the contents of the data directory.
+Do not delete the volume unless you intentionally want to reset Firestarter.
+
+Never commit or publish Firestarter's persistent data.
 
 ## Security
 
@@ -240,7 +244,7 @@ docker compose logs -f firestarter
 Current release candidate:
 
 ```
-1.0.0-rc1
+1.0.0-rc2
 ```
 
 Firestarter is currently undergoing clean-install testing before the stable `v1.0.0` release.
