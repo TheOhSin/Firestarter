@@ -68,7 +68,7 @@ That link adds **your bot** to **your Discord server**.
 Clone Firestarter:
 
 ~~bash
-git clone https://github.com/YOUR_USERNAME/firestarter.git
+git clone https://github.com/TheOhSin/firestarter.git
 cd firestarter
 ~~
 
