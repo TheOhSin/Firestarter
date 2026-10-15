@@ -28,7 +28,7 @@ When a Discord member receives the configured onboarding role, Firestarter sends
 
 The member can then create a Fireshare contributor account without receiving Fireshare administrator credentials.
 
-~~
+```
 Discord Member
       │
       │ onboarding role
@@ -42,7 +42,7 @@ Account Registration
       │ Fireshare Admin API
       ▼
 Fireshare Contributor Account
-~~
+```
 
 ## Your Discord Bot
 
@@ -67,40 +67,40 @@ That link adds **your bot** to **your Discord server**.
 
 Clone Firestarter:
 
-~~bash
+```bash
 git clone https://github.com/TheOhSin/firestarter.git
 cd firestarter
-~~
+```
 
 Create the local environment file:
 
-~~bash
+```bash
 cp .env.example .env
-~~
+```
 
 For LAN access, edit `.env` and set:
 
-~~env
+```env
 FIRESTARTER_BIND_IP=192.168.1.10
-~~
+```
 
 For local or reverse-proxy-only access, leave:
 
-~~env
+```env
 FIRESTARTER_BIND_IP=127.0.0.1
-~~
+```
 
 Start Firestarter:
 
-~~bash
+```bash
 docker compose up -d --build
-~~
+```
 
 Then open:
 
-~~
+```
 http://YOUR_SERVER_IP:8090
-~~
+```
 
 The first-run WebUI will guide you through the rest of the configuration.
 
@@ -124,15 +124,15 @@ Create a Discord application and bot in the Discord Developer Portal.
 
 Enable:
 
-~~
+```
 Server Members Intent
-~~
+```
 
 under:
 
-~~
+```
 Bot → Privileged Gateway Intents
-~~
+```
 
 Message Content Intent is not required for the normal Firestarter onboarding flow.
 
@@ -152,13 +152,13 @@ Firestarter uses it to:
 
 Contributor accounts created by Firestarter use:
 
-~~
+```
 view_private
 upload
 edit_own
 delete_own
 manage_tags
-~~
+```
 
 ## Docker Configuration
 
@@ -166,7 +166,7 @@ The `.env` file contains deployment settings only.
 
 Example:
 
-~~env
+```env
 APP_VERSION=1.0.0-rc1
 FIRESTARTER_BIND_IP=127.0.0.1
 WEB_PORT=8090
@@ -174,15 +174,15 @@ DATABASE_PATH=/data/bot.db
 FIRESTARTER_DATA_DIR=./data
 WEB_SECURE_COOKIES=false
 FIRESHARE_HOST_ALIAS=host.docker.internal
-~~
+```
 
 ### HTTPS
 
 When the Firestarter WebUI is served through HTTPS, set:
 
-~~env
+```env
 WEB_SECURE_COOKIES=true
-~~
+```
 
 Leave it disabled when accessing the WebUI directly over plain HTTP.
 
@@ -192,17 +192,17 @@ Persistent state is stored in `/data`.
 
 With the default Compose configuration this maps to:
 
-~~
+```
 ./data
-~~
+```
 
 This may contain:
 
-~~
+```
 bot.db
 .firestarter-key
 .web-session-secret
-~~
+```
 
 Never commit or publish the contents of the data directory.
 
@@ -225,22 +225,22 @@ Do not expose the Firestarter WebUI directly to the public Internet without HTTP
 
 Check Firestarter:
 
-~~bash
+```bash
 docker compose ps
-~~
+```
 
 View logs:
 
-~~bash
+```bash
 docker compose logs -f firestarter
-~~
+```
 
 ## Release Status
 
 Current release candidate:
 
-~~
+```
 1.0.0-rc1
-~~
+```
 
 Firestarter is currently undergoing clean-install testing before the stable `v1.0.0` release.
