@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="setup-wrap">
+
+<div class="setup-progress">
+    <span>✓ Instance</span>
+    <span>›</span>
+    <span>✓ Discord</span>
+    <span>›</span>
+    <strong>3</strong> Fireshare
+    <span>›</span>
+    <span>4 Review</span>
+</div>
+
+<section class="card setup-card">
+
+    <div class="eyebrow">
+        Fireshare
+    </div>
+
+    <h1>Connect Fireshare</h1>
+
+    <p class="lead">
+        Use a dedicated Fireshare administrator
+        account for Firestarter.
+    </p>
+
+    {% if test_result == "fail" %}
+    <div class="error">
+        Firestarter could not authenticate
+        to Fireshare with those settings.
+    </div>
+    {% endif %}
+
+    <form
+        action="/setup/fireshare"
+        method="post"
+        class="form-stack"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+        >
+
+        <label>
+            Fireshare URL
+            <input
+                name="fireshare_url"
+                type="url"
+                value="{{ fireshare_url }}"
+                placeholder="https://clips.example.com"
+                required
+            >
+        </label>
+
+        <label>
+            Public Fireshare URL
+            <input
+                name="public_url"
+                type="url"
+                value="{{ public_url }}"
+                placeholder="https://clips.example.com"
+                required
+            >
+        </label>
+
+        <label>
+            Service account username
+            <input
+                name="username"
+                value="{{ username }}"
+                required
+            >
+        </label>
+
+        <label>
+            Service account password
+            <input
+                name="password"
+                type="password"
+                placeholder="{% if password_configured %}Leave blank to keep stored password{% else %}Enter password{% endif %}"
+            >
+        </label>
+
+        <button
+            class="button button-primary"
+            type="submit"
+        >
+            Test & Continue →
+        </button>
+    </form>
+
+</section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Management
+        </div>
+
+        <h1>System</h1>
+
+        <p class="lead">
+            Firestarter runtime, service health,
+            and WebUI information.
+        </p>
+    </div>
+
+    <div class="hero-status">
+        {% if system_info.discord_ready and system_info.fireshare_ready %}
+        <span class="status status-good">
+            ● Systems online
+        </span>
+        {% else %}
+        <span class="status status-warn">
+            ● Attention needed
+        </span>
+        {% endif %}
+    </div>
+</section>
+
+
+<section class="grid-2">
+
+    <article class="card settings-card">
+
+        <div class="card-heading">
+            <div class="service-title">
+                <span class="service-icon">
+                    🔥
+                </span>
+
+                <h2>Firestarter</h2>
+            </div>
+
+            <span class="badge good">
+                Running
+            </span>
+        </div>
+
+        <dl>
+            <div>
+                <dt>Version</dt>
+                <dd>
+                    v{{ system_info.version }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Runtime mode</dt>
+                <dd>
+                    {{ system_info.runtime_mode }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Database</dt>
+                <dd>
+                    {{ system_info.database_path }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Administrator</dt>
+                <dd>
+                    {{ system_info.admin_username }}
+                </dd>
+            </div>
+        </dl>
+
+    </article>
+
+
+    <article class="card settings-card">
+
+        <div class="card-heading">
+            <div class="service-title">
+                <span class="service-icon">
+                    ◈
+                </span>
+
+                <h2>Discord</h2>
+            </div>
+
+            {% if system_info.discord_ready %}
+            <span class="badge good">
+                Connected
+            </span>
+            {% else %}
+            <span class="badge bad">
+                Offline
+            </span>
+            {% endif %}
+        </div>
+
+        <dl>
+            <div>
+                <dt>Bot</dt>
+                <dd>
+                    {{ system_info.discord_bot_name }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Status</dt>
+                <dd>
+                    {% if system_info.discord_ready %}
+                    Ready
+                    {% else %}
+                    Not ready
+                    {% endif %}
+                </dd>
+            </div>
+        </dl>
+
+        <div class="card-footer">
+            <a
+                href="/settings/discord"
+                class="button button-quiet button-link"
+            >
+                Discord settings
+            </a>
+        </div>
+
+    </article>
+
+
+    <article class="card settings-card">
+
+        <div class="card-heading">
+            <div class="service-title">
+                <span class="service-icon">
+                    ▶
+                </span>
+
+                <h2>Fireshare</h2>
+            </div>
+
+            {% if system_info.fireshare_ready %}
+            <span class="badge good">
+                Connected
+            </span>
+            {% else %}
+            <span class="badge bad">
+                Unavailable
+            </span>
+            {% endif %}
+        </div>
+
+        <dl>
+            <div>
+                <dt>Administrator API</dt>
+                <dd>
+                    {% if system_info.fireshare_ready %}
+                    Available
+                    {% else %}
+                    Unavailable
+                    {% endif %}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Users visible</dt>
+                <dd>
+                    {% if system_info.fireshare_users is not none %}
+                    {{ system_info.fireshare_users }}
+                    {% else %}
+                    —
+                    {% endif %}
+                </dd>
+            </div>
+
+            {% if system_info.fireshare_error %}
+            <div>
+                <dt>Last error</dt>
+                <dd>
+                    {{ system_info.fireshare_error }}
+                </dd>
+            </div>
+            {% endif %}
+        </dl>
+
+        <div class="card-footer">
+            <a
+                href="/settings/fireshare"
+                class="button button-quiet button-link"
+            >
+                Fireshare settings
+            </a>
+        </div>
+
+    </article>
+
+
+    <article class="card settings-card">
+
+        <div class="card-heading">
+            <div class="service-title">
+                <span class="service-icon">
+                    ⚙
+                </span>
+
+                <h2>WebUI</h2>
+            </div>
+        </div>
+
+        <dl>
+            <div>
+                <dt>Port</dt>
+                <dd>
+                    {{ system_info.web_port }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Secure cookies</dt>
+                <dd>
+                    {% if system_info.secure_cookies %}
+                    Enabled
+                    {% else %}
+                    Disabled
+                    {% endif %}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Authentication</dt>
+                <dd>
+                    Web administrator
+                </dd>
+            </div>
+        </dl>
+
+        <div class="card-footer">
+            <a
+                href="/settings/account"
+                class="button button-quiet button-link"
+            >
+                Account settings
+            </a>
+        </div>
+
+    </article>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Management</h2>
+
+            <p>
+                Jump to Firestarter administration.
+            </p>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+
+        <a
+            href="/accounts"
+            class="action-card"
+        >
+            <span class="action-icon">
+                ◎
+            </span>
+
+            <div>
+                <strong>Accounts</strong>
+
+                <span>
+                    Manage Discord and Fireshare
+                    account links.
+                </span>
+            </div>
+
+            <span class="action-arrow">
+                →
+            </span>
+        </a>
+
+        <a
+            href="/onboarding"
+            class="action-card"
+        >
+            <span class="action-icon">
+                ◇
+            </span>
+
+            <div>
+                <strong>Onboarding</strong>
+
+                <span>
+                    Review prompts, registrations,
+                    and role activity.
+                </span>
+            </div>
+
+            <span class="action-arrow">
+                →
+            </span>
+        </a>
+
+        <a
+            href="/dashboard"
+            class="action-card"
+        >
+            <span class="action-icon">
+                ⌂
+            </span>
+
+            <div>
+                <strong>Dashboard</strong>
+
+                <span>
+                    Return to the Firestarter
+                    overview.
+                </span>
+            </div>
+
+            <span class="action-arrow">
+                →
+            </span>
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

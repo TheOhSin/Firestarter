@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-wrap">
+    <section class="card auth-card">
+        <div class="eyebrow">
+            Administration
+        </div>
+
+        <h1>Welcome back</h1>
+
+        <p class="lead">
+            Sign in to manage this
+            Firestarter instance.
+        </p>
+
+        {% if request.query_params.get("password_changed") == "1" %}
+        <div class="success">
+            Password changed successfully.
+            Sign in with your new password.
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form
+            action="/login"
+            method="post"
+            class="form-stack"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <label>
+                Username
+                <input
+                    name="username"
+                    autocomplete="username"
+                    required
+                >
+            </label>
+
+            <label>
+                Password
+                <input
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </label>
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Sign in
+            </button>
+        </form>
+    </section>
+</div>
+
+{% endblock %}

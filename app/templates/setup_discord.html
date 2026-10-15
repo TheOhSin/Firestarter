@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="setup-wrap">
+
+<div class="setup-progress">
+    <span>✓ Instance</span>
+    <span>›</span>
+    <strong>2</strong> Discord
+    <span>›</span>
+    <span>3 Fireshare</span>
+    <span>›</span>
+    <span>4 Review</span>
+</div>
+
+<section class="card setup-card">
+
+    <div class="eyebrow">
+        Discord
+    </div>
+
+    <h1>Connect your bot</h1>
+
+    <p class="lead">
+        Paste the bot token from the
+        Discord Developer Portal. Firestarter
+        encrypts it before storing it.
+    </p>
+
+    {% if token_test == "ok" %}
+    <div class="success">
+        Discord bot token verified.
+    </div>
+    {% elif token_test == "fail" %}
+    <div class="error">
+        Discord rejected that bot token.
+    </div>
+    {% endif %}
+
+    <form
+        action="/setup/discord/token"
+        method="post"
+        class="form-stack"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+        >
+
+        <label>
+            Discord bot token
+
+            <input
+                name="discord_token"
+                type="password"
+                placeholder="{% if token_configured %}Leave blank to keep stored token{% else %}Paste bot token{% endif %}"
+            >
+        </label>
+
+        <button
+            class="button button-quiet"
+            type="submit"
+        >
+            Test & Save Token
+        </button>
+    </form>
+
+
+    {% if identity %}
+
+    <div class="divider"></div>
+
+    <div class="connection-summary">
+        <span class="badge good">
+            Connected
+        </span>
+
+        <strong>
+            {{ identity.username }}
+        </strong>
+    </div>
+
+    <div class="notice">
+        In the Discord Developer Portal,
+        enable <strong>Server Members Intent</strong>
+        under Bot → Privileged Gateway Intents.
+    </div>
+
+    {% if invite_url %}
+
+    <div class="notice">
+        <strong>This is your Discord bot.</strong>
+        Firestarter is self-hosted and does not provide
+        a shared central bot. This link installs the bot
+        associated with the Discord token you entered above.
+        Each Firestarter installation should use its own
+        Discord application and bot.
+    </div>
+
+    <a
+        href="{{ invite_url }}"
+        target="_blank"
+        rel="noreferrer"
+        class="button button-quiet button-link"
+    >
+        Add your bot to Discord server
+    </a>
+
+    {% endif %}
+
+
+    {% if guilds|length == 0 %}
+    <div class="notice">
+        No Discord servers are visible yet.
+        Add your bot to your server, then reload this page.
+    </div>
+
+    {% else %}
+
+    <div class="divider"></div>
+
+    <form
+        action="/setup/discord"
+        method="get"
+        class="form-stack"
+    >
+        <label>
+            Discord server
+
+            <select
+                name="guild_id"
+                required
+            >
+                {% for guild in guilds %}
+                <option
+                    value="{{ guild.id }}"
+                    {% if selected_guild_id == guild.id|string %}
+                    selected
+                    {% endif %}
+                >
+                    {{ guild.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button
+            class="button button-quiet"
+            type="submit"
+        >
+            Load Roles
+        </button>
+    </form>
+
+
+    {% if roles|length > 0 %}
+
+    <div class="divider"></div>
+
+    <form
+        action="/setup/discord/save"
+        method="post"
+        class="form-stack"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+        >
+
+        <input
+            type="hidden"
+            name="guild_id"
+            value="{{ selected_guild_id }}"
+        >
+
+        <label>
+            Onboarding role
+
+            <select
+                name="role_id"
+                required
+            >
+                <option value="">
+                    Select a role
+                </option>
+
+                {% for role in roles %}
+                <option
+                    value="{{ role.id }}"
+                    {% if selected_role_id == role.id|string %}
+                    selected
+                    {% endif %}
+                >
+                    {{ role.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button
+            class="button button-primary"
+            type="submit"
+        >
+            Continue to Fireshare →
+        </button>
+    </form>
+
+    {% endif %}
+    {% endif %}
+    {% endif %}
+
+</section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-wrap">
+    <section class="card auth-card">
+        <div class="eyebrow">
+            First-run setup
+        </div>
+
+        <h1>Claim Firestarter</h1>
+
+        <p class="lead">
+            Firestarter has not been configured
+            with a WebUI administrator yet.
+        </p>
+
+        <div class="notice">
+            The one-time claim code is printed
+            in the Firestarter container logs.
+        </div>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form
+            action="/claim"
+            method="post"
+            class="form-stack"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <label>
+                Claim code
+                <input
+                    name="claim_code"
+                    autocomplete="off"
+                    placeholder="XXXX-XXXX-XXXX"
+                    required
+                >
+            </label>
+
+            <label>
+                Admin username
+                <input
+                    name="username"
+                    autocomplete="username"
+                    placeholder="admin"
+                    minlength="3"
+                    maxlength="32"
+                    required
+                >
+            </label>
+
+            <label>
+                Admin password
+                <input
+                    name="password"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    required
+                >
+            </label>
+
+            <label>
+                Confirm password
+                <input
+                    name="confirm_password"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    required
+                >
+            </label>
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Claim Firestarter
+            </button>
+        </form>
+    </section>
+</div>
+
+{% endblock %}

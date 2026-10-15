@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Settings
+        </div>
+
+        <h1>Fireshare</h1>
+
+        <p class="lead">
+            Connect Firestarter to the Fireshare
+            instance it will manage.
+        </p>
+    </div>
+</section>
+
+
+{% if saved %}
+<div class="success">
+    Fireshare settings saved successfully.
+</div>
+{% endif %}
+
+
+{% if test_result == "ok" %}
+<div class="success">
+    Fireshare administrator connection passed.
+
+    {% if test_users is not none %}
+    Firestarter can see {{ test_users }}
+    Fireshare user{% if test_users|string != "1" %}s{% endif %}.
+    {% endif %}
+</div>
+
+{% elif test_result == "fail" %}
+<div class="error">
+    Firestarter could not authenticate to the
+    Fireshare administrator API with those settings.
+</div>
+
+{% elif test_result == "invalid_url" %}
+<div class="error">
+    Enter a valid Fireshare URL beginning with
+    http:// or https://.
+</div>
+
+{% elif test_result == "invalid_public_url" %}
+<div class="error">
+    Enter a valid public Fireshare URL beginning
+    with http:// or https://.
+</div>
+
+{% elif test_result == "missing_username" %}
+<div class="error">
+    A Fireshare service-account username is required.
+</div>
+
+{% elif test_result == "missing_password" %}
+<div class="error">
+    A Fireshare service-account password is required.
+</div>
+{% endif %}
+
+
+<section class="grid-2">
+
+    <article class="card settings-card">
+        <div class="card-heading">
+            <h2>Instance</h2>
+        </div>
+
+        <form
+            action="/settings/fireshare/save"
+            method="post"
+            class="form-stack"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <label>
+                Fireshare URL
+
+                <input
+                    name="fireshare_url"
+                    type="url"
+                    value="{{ fireshare_url }}"
+                    placeholder="https://clips.example.com"
+                    required
+                >
+            </label>
+
+            <p class="field-help">
+                URL Firestarter uses to contact
+                the Fireshare API.
+            </p>
+
+
+            <label>
+                Public Fireshare URL
+
+                <input
+                    name="public_fireshare_url"
+                    type="url"
+                    value="{{ public_url }}"
+                    placeholder="https://clips.example.com"
+                    required
+                >
+            </label>
+
+            <p class="field-help">
+                URL included in profile and
+                onboarding links sent to users.
+            </p>
+
+
+            <label>
+                Service account username
+
+                <input
+                    name="fireshare_username"
+                    value="{{ fireshare_username }}"
+                    autocomplete="username"
+                    required
+                >
+            </label>
+
+
+            <label>
+                Service account password
+
+                <input
+                    name="fireshare_password"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="{% if password_configured %}Leave blank to keep current password{% else %}Enter service account password{% endif %}"
+                >
+            </label>
+
+            {% if password_configured %}
+            <div class="credential-state">
+                <span class="badge good">
+                    Password encrypted and stored
+                </span>
+            </div>
+            {% endif %}
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Save Verified Settings
+            </button>
+        </form>
+    </article>
+
+
+    <article class="card settings-card">
+        <div class="card-heading">
+            <h2>Connection Test</h2>
+
+            {% if test_result == "ok" %}
+            <span class="badge good">
+                Administrator API ✓
+            </span>
+            {% else %}
+            <span class="badge neutral">
+                Not tested
+            </span>
+            {% endif %}
+        </div>
+
+        <p class="lead small-lead">
+            Testing is non-destructive.
+            Firestarter signs in and requests
+            the administrator user list.
+        </p>
+
+        <form
+            action="/settings/fireshare/test"
+            method="post"
+            class="form-stack"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <label>
+                Fireshare URL
+
+                <input
+                    name="fireshare_url"
+                    type="url"
+                    value="{{ fireshare_url }}"
+                    required
+                >
+            </label>
+
+            <input
+                type="hidden"
+                name="public_fireshare_url"
+                value="{{ public_url }}"
+            >
+
+            <label>
+                Service account username
+
+                <input
+                    name="fireshare_username"
+                    value="{{ fireshare_username }}"
+                    required
+                >
+            </label>
+
+            <label>
+                Password
+
+                <input
+                    name="fireshare_password"
+                    type="password"
+                    placeholder="{% if password_configured %}Leave blank to test stored password{% else %}Enter password{% endif %}"
+                >
+            </label>
+
+            <button
+                type="submit"
+                class="button button-quiet"
+            >
+                Test Connection
+            </button>
+        </form>
+
+
+        <div class="capability-list">
+            <div>
+                <span>Administrator API</span>
+
+                {% if test_result == "ok" %}
+                <strong class="check-good">✓</strong>
+                {% else %}
+                <strong>—</strong>
+                {% endif %}
+            </div>
+
+            <div>
+                <span>User management</span>
+
+                {% if test_result == "ok" %}
+                <strong class="check-good">✓</strong>
+                {% else %}
+                <strong>—</strong>
+                {% endif %}
+            </div>
+
+            <div>
+                <span>Password setup workflow</span>
+
+                {% if test_result == "ok" %}
+                <strong class="check-good">✓</strong>
+                {% else %}
+                <strong>—</strong>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+
+</section>
+
+
+
+
+{% endblock %}

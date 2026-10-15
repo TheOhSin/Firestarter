@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Overview
+        </div>
+
+        <h1>{{ service_name }}</h1>
+
+        <p class="lead">
+            Discord onboarding and Fireshare
+            account management.
+        </p>
+    </div>
+
+    <div class="hero-status">
+        {% if discord_ready and fireshare_ready %}
+        <span class="status status-good">
+            ● Systems online
+        </span>
+        {% else %}
+        <span class="status status-warn">
+            ● Attention needed
+        </span>
+        {% endif %}
+    </div>
+</section>
+
+
+<section class="stat-grid">
+
+    <a
+        href="/accounts"
+        class="stat-card stat-link"
+    >
+        <span class="stat-label">
+            Linked accounts
+        </span>
+
+        <strong>
+            {{ stats.linked }}
+        </strong>
+
+        <span class="stat-hint">
+            Manage accounts →
+        </span>
+    </a>
+
+
+    <a
+        href="/onboarding"
+        class="stat-card stat-link"
+    >
+        <span class="stat-label">
+            Onboarding tracked
+        </span>
+
+        <strong>
+            {{ stats.tracked }}
+        </strong>
+
+        <span class="stat-hint">
+            View activity →
+        </span>
+    </a>
+
+
+    <a
+        href="/onboarding"
+        class="stat-card stat-link"
+    >
+        <span class="stat-label">
+            Prompted members
+        </span>
+
+        <strong>
+            {{ stats.prompted }}
+        </strong>
+
+        <span class="stat-hint">
+            View onboarding →
+        </span>
+    </a>
+
+
+    <a
+        href="/accounts"
+        class="stat-card stat-link"
+    >
+        <span class="stat-label">
+            Disabled accounts
+        </span>
+
+        <strong>
+            {% if fireshare_disabled is not none %}
+                {{ fireshare_disabled }}
+            {% else %}
+                —
+            {% endif %}
+        </strong>
+
+        <span class="stat-hint">
+            Review accounts →
+        </span>
+    </a>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Connections</h2>
+
+            <p>
+                Services Firestarter depends on.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="grid-2">
+
+        <article class="card settings-card">
+
+            <div class="card-heading">
+                <div class="service-title">
+                    <span class="service-icon">
+                        ◈
+                    </span>
+
+                    <h2>Discord</h2>
+                </div>
+
+            </div>
+
+            <dl>
+                <div>
+                    <dt>Bot</dt>
+                    <dd>
+                        {{ discord_bot_name }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Server</dt>
+                    <dd>
+                        {{ guild_name }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Onboarding role</dt>
+                    <dd>
+                        {{ role_name }}
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="card-footer">
+                <a
+                    href="/settings/discord"
+                    class="button button-quiet button-link"
+                >
+                    Discord settings
+                </a>
+            </div>
+
+        </article>
+
+
+        <article class="card settings-card">
+
+            <div class="card-heading">
+                <div class="service-title">
+                    <span class="service-icon">
+                        ▶
+                    </span>
+
+                    <h2>Fireshare</h2>
+                </div>
+
+            </div>
+
+            <dl>
+                <div>
+                    <dt>Instance</dt>
+
+                    <dd>
+                        {% if fireshare_url %}
+                        <a
+                            href="{{ fireshare_url }}"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            {{ fireshare_url }}
+                        </a>
+                        {% else %}
+                        Not configured
+                        {% endif %}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Users visible</dt>
+
+                    <dd>
+                        {% if fireshare_users is not none %}
+                            {{ fireshare_users }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="card-footer">
+                <a
+                    href="/settings/fireshare"
+                    class="button button-quiet button-link"
+                >
+                    Fireshare settings
+                </a>
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Management</h2>
+
+            <p>
+                Common Firestarter administration.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="dashboard-actions">
+
+        <a
+            href="/accounts"
+            class="action-card"
+        >
+            <span class="action-icon">
+                ◎
+            </span>
+
+            <div>
+                <strong>
+                    Accounts
+                </strong>
+
+                <span>
+                    Manage Discord ↔ Fireshare
+                    account links.
+                </span>
+            </div>
+
+            <span class="action-arrow">
+                →
+            </span>
+        </a>
+
+
+        <a
+            href="/onboarding"
+            class="action-card"
+        >
+            <span class="action-icon">
+                ◇
+            </span>
+
+            <div>
+                <strong>
+                    Onboarding
+                </strong>
+
+                <span>
+                    Review role events,
+                    prompts and registrations.
+                </span>
+            </div>
+
+            <span class="action-arrow">
+                →
+            </span>
+        </a>
+
+
+        <a
+            href="/settings/account"
+            class="action-card"
+        >
+            <span class="action-icon">
+                ●
+            </span>
+
+            <div>
+                <strong>
+                    Account settings
+                </strong>
+
+                <span>
+                    Manage the Firestarter
+                    WebUI administrator.
+                </span>
+            </div>
+
+            <span class="action-arrow">
+                →
+            </span>
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Recent onboarding activity</h2>
+
+            <p>
+                Latest members handled by Firestarter.
+            </p>
+        </div>
+
+        <a
+            href="/onboarding"
+            class="section-link"
+        >
+            View all →
+        </a>
+    </div>
+
+    <section class="card activity-card">
+
+        {% if recent_activity %}
+
+        <div class="activity-list">
+
+            {% for item in recent_activity %}
+
+            <div class="activity-row">
+
+                <div class="activity-marker
+                    {% if item.kind == 'good' %}
+                    activity-good
+                    {% elif item.kind == 'bad' %}
+                    activity-bad
+                    {% endif %}
+                ">
+                    {% if item.kind == "good" %}
+                    ✓
+                    {% elif item.kind == "bad" %}
+                    !
+                    {% else %}
+                    •
+                    {% endif %}
+                </div>
+
+                <div class="activity-content">
+
+                    <div class="activity-title">
+                        <strong>
+                            {{ item.discord_username }}
+                        </strong>
+
+                        <span class="badge
+                            {% if item.kind == 'good' %}
+                            good
+                            {% elif item.kind == 'bad' %}
+                            bad
+                            {% else %}
+                            neutral
+                            {% endif %}
+                        ">
+                            {{ item.label }}
+                        </span>
+                    </div>
+
+                    <div class="activity-meta">
+
+                        {% if item.fireshare_username %}
+                        <span>
+                            Fireshare:
+                            {{ item.fireshare_username }}
+                        </span>
+                        {% endif %}
+
+                        <span>
+                            Generation {{ item.generation }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="activity-time"
+                    {% if item.time %}
+                    data-relative-time="{{ item.time }}"
+                    {% endif %}
+                >
+                    {% if item.time %}
+                    {{ item.time }}
+                    {% else %}
+                    —
+                    {% endif %}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+            <h2>No onboarding activity yet</h2>
+
+            <p>
+                Firestarter activity will appear
+                here when members are onboarded.
+            </p>
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</section>
+
+
+<section class="card system-summary">
+
+    <div>
+        <div class="eyebrow">
+            Firestarter
+        </div>
+
+        <h2>
+            System
+        </h2>
+    </div>
+
+    <div class="system-meta">
+
+        <div>
+            <span>Version</span>
+            <strong>
+                v{{ app_version }}
+            </strong>
+        </div>
+
+        <div>
+            <span>Administrator</span>
+            <strong>
+                {{ username }}
+            </strong>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

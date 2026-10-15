@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>{{ app_name }}</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+
+    <script
+        src="/static/app.js"
+        defer
+    ></script>
+</head>
+
+<body>
+
+{% if authenticated %}
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                🔥
+            </div>
+
+            <div class="brand-copy">
+                <strong>{{ app_name }}</strong>
+                <span>{{ service_name }}</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-section">
+
+                <div class="nav-heading">
+                    Overview
+                </div>
+
+                <a
+                    href="/dashboard"
+                    class="nav-item {% if request.url.path == '/dashboard' %}active{% endif %}"
+                >
+                    <span class="nav-icon">⌂</span>
+                    <span>Dashboard</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-heading">
+                    Management
+                </div>
+
+                <a
+                    href="/accounts"
+                    class="nav-item {% if request.url.path.startswith('/accounts') %}active{% endif %}"
+                >
+                    <span class="nav-icon">◎</span>
+                    <span>Accounts</span>
+                </a>
+
+
+                <a
+                    href="/onboarding"
+                    class="nav-item {% if request.url.path.startswith('/onboarding') %}active{% endif %}"
+                >
+                    <span class="nav-icon">◇</span>
+                    <span>Onboarding</span>
+                </a>
+
+
+                <a
+                    href="/system"
+                    class="nav-item {% if request.url.path.startswith('/system') %}active{% endif %}"
+                >
+                    <span class="nav-icon">⚙</span>
+                    <span>System</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-heading">
+                    Settings
+                </div>
+
+                <a
+                    href="/settings/discord"
+                    class="nav-item {% if request.url.path.startswith('/settings/discord') %}active{% endif %}"
+                >
+                    <span class="nav-icon">◈</span>
+                    <span>Discord</span>
+                </a>
+
+                <a
+                    href="/settings/fireshare"
+                    class="nav-item {% if request.url.path.startswith('/settings/fireshare') %}active{% endif %}"
+                >
+                    <span class="nav-icon">▶</span>
+                    <span>Fireshare</span>
+                </a>
+
+                <a
+                    href="/settings/account"
+                    class="nav-item {% if request.url.path.startswith('/settings/account') %}active{% endif %}"
+                >
+                    <span class="nav-icon">●</span>
+                    <span>Account</span>
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-version">
+                <span>Firestarter</span>
+                <span>v{{ app_version }}</span>
+            </div>
+
+            <form
+                action="/logout"
+                method="post"
+            >
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                >
+
+                <button
+                    type="submit"
+                    class="sidebar-signout"
+                >
+                    Sign out
+                </button>
+            </form>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main-area">
+
+        <header class="mobile-header">
+
+            <div class="mobile-brand">
+                🔥 {{ app_name }}
+            </div>
+
+            <span class="version">
+                v{{ app_version }}
+            </span>
+
+        </header>
+
+
+        <div class="page-content">
+
+{% else %}
+
+<div class="public-shell">
+
+    <header class="public-header">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-icon">
+                🔥
+            </div>
+
+            <div class="brand-copy">
+                <strong>{{ app_name }}</strong>
+                <span>Fireshare companion</span>
+            </div>
+
+        </div>
+
+        <span class="version">
+            v{{ app_version }}
+        </span>
+
+    </header>
+
+
+    <main class="public-content">
+
+{% endif %}
+
+
+{% block content %}
+{% endblock %}
+
+
+{% if authenticated %}
+
+        </div>
+
+    </main>
+
+</div>
+
+{% else %}
+
+    </main>
+
+</div>
+
+{% endif %}
+
+</body>
+</html>

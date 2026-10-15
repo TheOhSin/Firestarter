@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Management
+        </div>
+
+        <h1>Onboarding</h1>
+
+        <p class="lead">
+            Discord role events and Firestarter
+            onboarding activity.
+        </p>
+    </div>
+
+    <div class="hero-status">
+        <span class="badge neutral">
+            {{ counts.total }} tracked
+        </span>
+    </div>
+</section>
+
+
+<section class="stat-grid">
+
+    <article class="stat-card">
+        <span class="stat-label">
+            Tracked
+        </span>
+
+        <strong>
+            {{ counts.total }}
+        </strong>
+    </article>
+
+
+    <article class="stat-card">
+        <span class="stat-label">
+            Registered
+        </span>
+
+        <strong>
+            {{ counts.registered }}
+        </strong>
+    </article>
+
+
+    <article class="stat-card">
+        <span class="stat-label">
+            Prompted
+        </span>
+
+        <strong>
+            {{ counts.prompted }}
+        </strong>
+    </article>
+
+
+    <article class="stat-card">
+        <span class="stat-label">
+            DMs blocked
+        </span>
+
+        <strong>
+            {{ counts.blocked }}
+        </strong>
+    </article>
+
+</section>
+
+
+<section class="card table-card">
+
+{% if records %}
+
+<div class="table-scroll">
+
+<table class="accounts-table">
+
+    <thead>
+        <tr>
+            <th>Discord</th>
+            <th>Fireshare</th>
+            <th>State</th>
+            <th>Prompt</th>
+            <th>Generation</th>
+            <th>Last role added</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for item in records %}
+
+        <tr>
+
+            <td>
+                <div class="account-identity">
+                    <strong>
+                        {{ item.discord_username }}
+                    </strong>
+
+                    <span>
+                        {{ item.discord_id }}
+                    </span>
+                </div>
+            </td>
+
+
+            <td>
+                {% if item.fireshare_username %}
+                <div class="account-identity">
+                    <strong>
+                        {{ item.fireshare_username }}
+                    </strong>
+                </div>
+                {% else %}
+                <span class="muted-cell">
+                    Not linked
+                </span>
+                {% endif %}
+            </td>
+
+
+            <td>
+
+                {% if item.registration_state == "registered" %}
+                <span class="badge good">
+                    Registered
+                </span>
+
+                {% elif item.registration_state == "prompted" %}
+                <span class="badge neutral">
+                    Prompted
+                </span>
+
+                {% elif item.registration_state == "prompt_pending" %}
+                <span class="badge neutral">
+                    Pending
+                </span>
+
+                {% else %}
+                <span class="badge neutral">
+                    {{ item.registration_state }}
+                </span>
+                {% endif %}
+
+            </td>
+
+
+            <td>
+
+                {% if item.last_prompt_status == "sent" %}
+                <span class="badge good">
+                    Sent
+                </span>
+
+                {% elif item.last_prompt_status == "dm_blocked" %}
+                <span class="badge bad">
+                    DM blocked
+                </span>
+
+                {% elif item.last_prompt_status == "none" %}
+                <span class="muted-cell">
+                    —
+                </span>
+
+                {% else %}
+                <span class="badge neutral">
+                    {{ item.last_prompt_status }}
+                </span>
+                {% endif %}
+
+            </td>
+
+
+            <td class="muted-cell">
+                {{ item.generation }}
+            </td>
+
+
+            <td
+                class="muted-cell"
+                {% if item.last_role_added_at %}
+                data-relative-time="{{ item.last_role_added_at }}"
+                {% endif %}
+            >
+                {% if item.last_role_added_at %}
+                    {{ item.last_role_added_at }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No onboarding activity</h2>
+
+    <p>
+        Role-triggered onboarding events will
+        appear here.
+    </p>
+</div>
+
+{% endif %}
+
+</section>
+
+{% endblock %}

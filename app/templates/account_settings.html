@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Settings
+        </div>
+
+        <h1>Account</h1>
+
+        <p class="lead">
+            Manage your Firestarter WebUI
+            administrator account.
+        </p>
+    </div>
+</section>
+
+
+{% if error %}
+<div class="error">
+    {{ error }}
+</div>
+{% endif %}
+
+
+<section class="grid-2">
+
+    <article class="card settings-card">
+        <div class="card-heading">
+            <h2>Administrator</h2>
+
+            <span class="badge good">
+                Active
+            </span>
+        </div>
+
+        <dl>
+            <div>
+                <dt>Username</dt>
+                <dd>{{ username }}</dd>
+            </div>
+
+            <div>
+                <dt>Password storage</dt>
+                <dd>Salted scrypt hash</dd>
+            </div>
+
+            <div>
+                <dt>Minimum password length</dt>
+                <dd>8 characters</dd>
+            </div>
+        </dl>
+    </article>
+
+
+    <article class="card settings-card">
+        <div class="card-heading">
+            <h2>Change Password</h2>
+        </div>
+
+        <p class="lead small-lead">
+            You will be signed out after
+            changing your password.
+        </p>
+
+        <form
+            action="/settings/account/password"
+            method="post"
+            class="form-stack"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <label>
+                Current password
+
+                <input
+                    name="current_password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </label>
+
+            <label>
+                New password
+
+                <input
+                    name="new_password"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    required
+                >
+            </label>
+
+            <label>
+                Confirm new password
+
+                <input
+                    name="confirm_password"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    required
+                >
+            </label>
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Change Password
+            </button>
+        </form>
+    </article>
+
+</section>
+
+{% endblock %}

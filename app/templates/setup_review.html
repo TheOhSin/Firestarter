@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="setup-wrap">
+
+<div class="setup-progress">
+    <span>✓ Instance</span>
+    <span>›</span>
+    <span>✓ Discord</span>
+    <span>›</span>
+    <span>✓ Fireshare</span>
+    <span>›</span>
+    <strong>4</strong> Review
+</div>
+
+<section class="card setup-card">
+
+    <div class="eyebrow">
+        Final Review
+    </div>
+
+    <h1>Ready to start Firestarter</h1>
+
+    <div class="review-list">
+
+        <div>
+            <span>Application</span>
+            <strong>{{ app_value }}</strong>
+        </div>
+
+        <div>
+            <span>Service</span>
+            <strong>{{ service_value }}</strong>
+        </div>
+
+        <div>
+            <span>Discord server</span>
+            <strong>{{ guild_value }}</strong>
+        </div>
+
+        <div>
+            <span>Onboarding role</span>
+            <strong>{{ role_value }}</strong>
+        </div>
+
+        <div>
+            <span>Fireshare</span>
+            <strong>{{ fireshare_value }}</strong>
+        </div>
+
+        <div>
+            <span>Discord token</span>
+            <strong>
+                {% if config_status.discord_token %}
+                Encrypted ✓
+                {% else %}
+                Missing
+                {% endif %}
+            </strong>
+        </div>
+
+        <div>
+            <span>Fireshare password</span>
+            <strong>
+                {% if config_status.fireshare_password %}
+                Encrypted ✓
+                {% else %}
+                Missing
+                {% endif %}
+            </strong>
+        </div>
+
+    </div>
+
+    {% if ready %}
+
+    <form
+        action="/setup/finish"
+        method="post"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+        >
+
+        <button
+            class="button button-primary setup-finish"
+            type="submit"
+        >
+            Finish Setup & Start Firestarter
+        </button>
+    </form>
+
+    {% else %}
+
+    <div class="error">
+        Setup is incomplete.
+    </div>
+
+    {% endif %}
+
+</section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="setup-wrap">
+
+<div class="setup-progress">
+    <strong>1</strong> Instance
+    <span>›</span>
+    <span>2 Discord</span>
+    <span>›</span>
+    <span>3 Fireshare</span>
+    <span>›</span>
+    <span>4 Review</span>
+</div>
+
+<section class="card setup-card">
+    <div class="eyebrow">
+        Firestarter Setup
+    </div>
+
+    <h1>Name your instance</h1>
+
+    <p class="lead">
+        Firestarter is the software name.
+        The service name is what your Discord
+        members will see.
+    </p>
+
+    <form
+        action="/setup/instance"
+        method="post"
+        class="form-stack"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+        >
+
+        <label>
+            Application name
+            <input
+                name="app_name"
+                value="{{ current_app_name }}"
+                required
+            >
+        </label>
+
+        <label>
+            Public service name
+            <input
+                name="service_name"
+                value="{{ current_service_name }}"
+                placeholder="My Clips"
+                required
+            >
+        </label>
+
+        <button
+            class="button button-primary"
+            type="submit"
+        >
+            Continue to Discord →
+        </button>
+    </form>
+</section>
+
+</div>
+
+{% endblock %}

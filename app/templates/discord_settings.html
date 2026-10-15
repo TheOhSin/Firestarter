@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Settings
+        </div>
+
+        <h1>Discord</h1>
+
+        <p class="lead">
+            Choose the Discord server and role
+            Firestarter will use for automatic
+            Fireshare onboarding.
+        </p>
+    </div>
+
+</section>
+
+
+{% if saved %}
+<div class="success">
+    Discord settings saved successfully.
+</div>
+{% endif %}
+
+{% if test_result == "ok" %}
+<div class="success">
+    Discord configuration test passed.
+</div>
+{% elif test_result == "fail" %}
+<div class="error">
+    Discord configuration test failed.
+</div>
+{% endif %}
+
+
+<section class="grid-2">
+
+    <article class="card settings-card">
+        <div class="card-heading">
+            <h2>Connection</h2>
+
+        </div>
+
+        <dl>
+            <div>
+                <dt>Bot</dt>
+                <dd>{{ discord_bot_name }}</dd>
+            </div>
+
+            <div>
+                <dt>Bot token</dt>
+                <dd>
+                    {% if token_configured %}
+                    Configured ✓
+                    {% else %}
+                    Not configured
+                    {% endif %}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Servers visible</dt>
+                <dd>{{ guilds|length }}</dd>
+            </div>
+        </dl>
+    </article>
+
+
+    <article class="card settings-card">
+        <div class="card-heading">
+            <h2>Onboarding</h2>
+        </div>
+
+        <form
+            action="/settings/discord"
+            method="get"
+            class="form-stack"
+        >
+            <label>
+                Discord server
+
+                <select
+                    name="guild_id"
+                    required
+                >
+                    {% for guild in guilds %}
+                    <option
+                        value="{{ guild.id }}"
+                        {% if selected_guild_id == guild.id|string %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ guild.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button
+                type="submit"
+                class="button button-quiet"
+            >
+                Load Roles
+            </button>
+        </form>
+
+
+        {% if selected_guild %}
+
+        <div class="divider"></div>
+
+        <form
+            action="/settings/discord/save"
+            method="post"
+            class="form-stack"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <input
+                type="hidden"
+                name="guild_id"
+                value="{{ selected_guild.id }}"
+            >
+
+            <label>
+                Onboarding role
+
+                <select
+                    name="role_id"
+                    required
+                >
+                    <option value="">
+                        Select a role
+                    </option>
+
+                    {% for role in roles %}
+                    <option
+                        value="{{ role.id }}"
+                        {% if selected_role_id == role.id|string %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ role.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Save Discord Settings
+            </button>
+        </form>
+
+        {% endif %}
+    </article>
+
+</section>
+
+
+{% if selected_guild %}
+
+<section class="card test-card">
+    <div>
+        <div class="eyebrow">
+            Validation
+        </div>
+
+        <h2>Test Discord Configuration</h2>
+
+        <p>
+            Firestarter will verify that the bot
+            is connected, the server is accessible,
+            and the selected role exists.
+        </p>
+    </div>
+
+    <form
+        action="/settings/discord/test"
+        method="post"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+        >
+
+        <input
+            type="hidden"
+            name="guild_id"
+            value="{{ selected_guild.id }}"
+        >
+
+        <input
+            type="hidden"
+            name="role_id"
+            value="{{ selected_role_id }}"
+        >
+
+        <button
+            type="submit"
+            class="button button-quiet"
+        >
+            Test Connection
+        </button>
+    </form>
+</section>
+
+{% endif %}
+
+
+
+
+{% endblock %}

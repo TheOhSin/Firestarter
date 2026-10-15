@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">
+            Management
+        </div>
+
+        <h1>Accounts</h1>
+
+        <p class="lead">
+            Discord members linked to
+            Fireshare accounts.
+        </p>
+    </div>
+
+    <div class="hero-status">
+        <span class="badge neutral">
+            {{ account_count }} linked
+        </span>
+    </div>
+</section>
+
+
+{% if action_message %}
+<div class="success">
+    {{ action_message }}
+</div>
+{% endif %}
+
+
+{% if action_error %}
+<div class="error">
+    {{ action_error }}
+</div>
+{% endif %}
+
+
+{% if fireshare_error %}
+<div class="error">
+    Fireshare status could not be checked:
+    {{ fireshare_error }}
+</div>
+{% endif %}
+
+
+{% if invite_url %}
+
+<section class="card invite-result">
+
+    <div>
+        <div class="eyebrow">
+            Password setup
+        </div>
+
+        <h2>
+            Fresh setup link
+        </h2>
+
+        <p>
+            This Fireshare setup link expires
+            according to Fireshare's invite policy.
+            Send it only to the intended user.
+        </p>
+    </div>
+
+    <label>
+        Setup URL
+
+        <input
+            type="text"
+            value="{{ invite_url }}"
+            readonly
+            data-copy-select
+        >
+    </label>
+
+    <a
+        href="{{ invite_url }}"
+        class="button button-primary button-link"
+        target="_blank"
+        rel="noreferrer"
+    >
+        Open setup link
+    </a>
+
+</section>
+
+{% endif %}
+
+
+<section class="card table-card">
+
+    {% if accounts %}
+
+    <div class="table-scroll">
+
+        <table class="accounts-table">
+
+            <thead>
+                <tr>
+                    <th>Discord</th>
+                    <th>Fireshare</th>
+                    <th>Status</th>
+                    <th>Linked</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for account in accounts %}
+
+                <tr>
+
+                    <td>
+                        <div class="account-identity">
+                            <strong>
+                                {{ account.discord_username }}
+                            </strong>
+
+                            <span>
+                                {{ account.discord_id }}
+                            </span>
+                        </div>
+                    </td>
+
+
+                    <td>
+                        <div class="account-identity">
+                            <strong>
+                                {{ account.fireshare_username }}
+                            </strong>
+
+                            <span>
+                                {% if account.fireshare_user_id %}
+                                ID {{ account.fireshare_user_id }}
+                                {% else %}
+                                No stored ID
+                                {% endif %}
+                            </span>
+                        </div>
+                    </td>
+
+
+                    <td>
+
+                        {% if account.status == "active" %}
+
+                        <span class="badge good">
+                            Active
+                        </span>
+
+                        {% elif account.status == "disabled" %}
+
+                        <span class="badge bad">
+                            Disabled
+                        </span>
+
+                        {% elif account.status == "missing" %}
+
+                        <span class="badge bad">
+                            Missing
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge neutral">
+                            Unknown
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td class="muted-cell">
+                        {{ account.created_at }}
+                    </td>
+
+
+                    <td>
+
+                        <div class="account-actions">
+
+                            {% if account.status == "active" %}
+
+                            <form
+                                method="post"
+                                action="/accounts/action"
+                                class="inline-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="discord_id"
+                                    value="{{ account.discord_id }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="reset"
+                                    class="button button-small button-quiet"
+                                >
+                                    Reset link
+                                </button>
+                            </form>
+
+
+                            <form
+                                method="post"
+                                action="/accounts/action"
+                                class="inline-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="discord_id"
+                                    value="{{ account.discord_id }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="disable"
+                                    class="button button-small button-quiet"
+                                >
+                                    Disable
+                                </button>
+                            </form>
+
+                            {% elif account.status == "disabled" %}
+
+                            <form
+                                method="post"
+                                action="/accounts/action"
+                                class="inline-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="discord_id"
+                                    value="{{ account.discord_id }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="enable"
+                                    class="button button-small button-primary"
+                                >
+                                    Enable
+                                </button>
+                            </form>
+
+                            {% endif %}
+
+
+                            <form
+                                method="post"
+                                action="/accounts/action"
+                                class="inline-form"
+                                data-confirm="Unlink this Discord account from Firestarter? The Fireshare account itself will not be deleted."
+                            >
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="discord_id"
+                                    value="{{ account.discord_id }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    name="action"
+                                    value="unlink"
+                                    class="button button-small button-danger"
+                                >
+                                    Unlink
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+        <h2>No linked accounts</h2>
+
+        <p>
+            Accounts will appear here after
+            Discord members complete onboarding.
+        </p>
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

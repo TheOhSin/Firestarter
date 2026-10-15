@@ -1,0 +1,45 @@
+# Runtime configuration / secrets
+.env
+.env.*
+!.env.example
+
+# Persistent application data
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Local backups
+ui-backup/
+*.bak
+*.backup
+*.old
+*.orig
+*.pre-*
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Tooling / caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build output
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
