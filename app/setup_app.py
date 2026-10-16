@@ -185,6 +185,7 @@ async def get_discord_roles(
 def create_setup_app(
     store,
     database_path,
+    request_runtime_handoff,
 ):
     @asynccontextmanager
     async def lifespan(app):
@@ -1348,18 +1349,18 @@ def create_setup_app(
             secret=False,
         )
 
-        async def restart():
+        async def handoff():
             await asyncio.sleep(2)
 
             logger.info(
                 "Setup complete. "
-                "Restarting Firestarter."
+                "Requesting runtime handoff."
             )
 
-            os._exit(0)
+            request_runtime_handoff()
 
         asyncio.create_task(
-            restart()
+            handoff()
         )
 
         return templates.TemplateResponse(

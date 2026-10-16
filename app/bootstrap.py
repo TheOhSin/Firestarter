@@ -183,9 +183,28 @@ async def run_setup_mode(
         create_setup_app,
     )
 
+    handoff_requested = False
+    server = None
+
+    def request_runtime_handoff():
+        nonlocal handoff_requested
+
+        handoff_requested = True
+
+        logger.info(
+            "Runtime handoff requested. "
+            "Stopping setup WebUI."
+        )
+
+        if server is not None:
+            server.should_exit = True
+
     app = create_setup_app(
         store=store,
         database_path=DATABASE_PATH,
+        request_runtime_handoff=(
+            request_runtime_handoff
+        ),
     )
 
     config = uvicorn.Config(
@@ -201,6 +220,22 @@ async def run_setup_mode(
     )
 
     await server.serve()
+
+    if handoff_requested:
+        logger.info(
+            "Setup WebUI stopped cleanly. "
+            "Re-running Firestarter bootstrap."
+        )
+
+        os.execv(
+            sys.executable,
+            [
+                sys.executable,
+                "/app/bootstrap.py",
+            ],
+        )
+
+        return 1
 
     return 0
 
