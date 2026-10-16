@@ -24,15 +24,12 @@ from fireshare import (
     FireshareError,
 )
 from webapp import (
-    AttemptLimiter,
     USERNAME_PATTERN,
     create_web_admin,
     ensure_web_schema,
-    generate_claim_code,
     get_web_admin,
     hash_password,
     load_or_create_session_secret,
-    normalize_claim_code,
     verify_password,
 )
 
@@ -57,7 +54,6 @@ templates = Jinja2Templates(
     )
 )
 
-limiter = AttemptLimiter()
 
 
 REQUIRED_SETTINGS = [
@@ -190,41 +186,11 @@ def create_setup_app(
     store,
     database_path,
 ):
-    state = {
-        "claim_code": None,
-    }
-
     @asynccontextmanager
     async def lifespan(app):
         await ensure_web_schema(
             database_path
         )
-
-        admin = await get_web_admin(
-            database_path
-        )
-
-        if admin is None:
-            state["claim_code"] = (
-                generate_claim_code()
-            )
-
-            logger.warning(
-                "========================================"
-            )
-
-            logger.warning(
-                "FIRESTARTER CLAIM CODE: %s",
-                state["claim_code"],
-            )
-
-            logger.warning(
-                "Use this code once in the WebUI."
-            )
-
-            logger.warning(
-                "========================================"
-            )
 
         yield
 
@@ -407,7 +373,7 @@ def create_setup_app(
 
         if admin is None:
             return RedirectResponse(
-                "/claim",
+                "/setup/admin",
                 status_code=303,
             )
 
@@ -423,10 +389,10 @@ def create_setup_app(
         )
 
     @app.get(
-        "/claim",
+        "/setup/admin",
         response_class=HTMLResponse,
     )
-    async def claim_page(
+    async def admin_setup_page(
         request: Request,
     ):
         admin = await get_web_admin(
@@ -441,7 +407,7 @@ def create_setup_app(
 
         return templates.TemplateResponse(
             request=request,
-            name="claim.html",
+            name="setup_admin.html",
             context=context(
                 request,
                 error=None,
@@ -449,10 +415,10 @@ def create_setup_app(
         )
 
     @app.post(
-        "/claim",
+        "/setup/admin",
         response_class=HTMLResponse,
     )
-    async def claim_submit(
+    async def admin_setup_submit(
         request: Request,
     ):
         admin = await get_web_admin(
@@ -470,13 +436,6 @@ def create_setup_app(
         csrf = str(
             form.get(
                 "csrf_token",
-                "",
-            )
-        )
-
-        claim_code = str(
-            form.get(
-                "claim_code",
                 "",
             )
         )
@@ -510,23 +469,6 @@ def create_setup_app(
         ):
             error = "Session expired."
 
-        elif not state[
-            "claim_code"
-        ]:
-            error = (
-                "No active claim code."
-            )
-
-        elif not hmac.compare_digest(
-            normalize_claim_code(
-                claim_code
-            ),
-            normalize_claim_code(
-                state["claim_code"]
-            ),
-        ):
-            error = "Invalid claim code."
-
         elif not USERNAME_PATTERN.fullmatch(
             username
         ):
@@ -548,7 +490,7 @@ def create_setup_app(
         if error:
             return templates.TemplateResponse(
                 request=request,
-                name="claim.html",
+                name="setup_admin.html",
                 context=context(
                     request,
                     error=error,
@@ -572,8 +514,6 @@ def create_setup_app(
                 "/login",
                 status_code=303,
             )
-
-        state["claim_code"] = None
 
         request.session.clear()
 
@@ -609,7 +549,7 @@ def create_setup_app(
 
         if admin is None:
             return RedirectResponse(
-                "/claim",
+                "/setup/admin",
                 status_code=303,
             )
 
@@ -712,6 +652,34 @@ def create_setup_app(
             "/setup/instance",
             status_code=303,
         )
+
+    @app.post("/logout")
+    async def logout(
+        request: Request,
+    ):
+        form = await request.form()
+
+        if not valid_csrf(
+            request,
+            str(
+                form.get(
+                    "csrf_token",
+                    "",
+                )
+            ),
+        ):
+            return HTMLResponse(
+                "Invalid CSRF token.",
+                status_code=403,
+            )
+
+        request.session.clear()
+
+        return RedirectResponse(
+            "/login",
+            status_code=303,
+        )
+
 
     @app.get(
         "/setup/instance",

@@ -110,30 +110,6 @@ class AttemptLimiter:
 limiter = AttemptLimiter()
 
 
-def generate_claim_code():
-    alphabet = (
-        "ABCDEFGHJKLMNPQRSTUVWXYZ"
-        "23456789"
-    )
-
-    raw = "".join(
-        secrets.choice(alphabet)
-        for _ in range(12)
-    )
-
-    return "-".join(
-        raw[i:i + 4]
-        for i in range(0, 12, 4)
-    )
-
-
-def normalize_claim_code(value):
-    return (
-        value.replace("-", "")
-        .replace(" ", "")
-        .upper()
-    )
-
 
 def load_or_create_session_secret():
     SESSION_SECRET_PATH.parent.mkdir(
@@ -344,41 +320,11 @@ def create_web_app(
     fireshare,
     config_store,
 ):
-    state = {
-        "claim_code": None,
-    }
-
     @asynccontextmanager
     async def lifespan(app):
         await ensure_web_schema(
             database.path
         )
-
-        admin = await get_web_admin(
-            database.path
-        )
-
-        if admin is None:
-            state["claim_code"] = (
-                generate_claim_code()
-            )
-
-            logger.warning(
-                "=================================================="
-            )
-            logger.warning(
-                "FIRESTARTER FIRST-RUN CLAIM CODE: %s",
-                state["claim_code"],
-            )
-            logger.warning(
-                "Use this code once in the Firestarter WebUI."
-            )
-            logger.warning(
-                "Do not share this code."
-            )
-            logger.warning(
-                "=================================================="
-            )
 
         yield
 
@@ -553,7 +499,7 @@ def create_web_app(
 
         return {
             "status": "ok",
-            "claimed": admin is not None,
+            "admin_configured": admin is not None,
             "discord_ready": (
                 discord_client.is_ready()
             ),
@@ -569,7 +515,7 @@ def create_web_app(
 
         if admin is None:
             return RedirectResponse(
-                "/claim",
+                "/setup/admin",
                 status_code=303,
             )
 
@@ -585,10 +531,10 @@ def create_web_app(
         )
 
     @app.get(
-        "/claim",
+        "/setup/admin",
         response_class=HTMLResponse,
     )
-    async def claim_page(
+    async def admin_setup_page(
         request: Request,
     ):
         admin = await get_web_admin(
@@ -603,7 +549,7 @@ def create_web_app(
 
         return templates.TemplateResponse(
             request=request,
-            name="claim.html",
+            name="setup_admin.html",
             context=template_context(
                 request,
                 error=None,
@@ -611,10 +557,10 @@ def create_web_app(
         )
 
     @app.post(
-        "/claim",
+        "/setup/admin",
         response_class=HTMLResponse,
     )
-    async def claim_submit(
+    async def admin_setup_submit(
         request: Request,
     ):
         admin = await get_web_admin(
@@ -632,13 +578,6 @@ def create_web_app(
         csrf = str(
             form.get(
                 "csrf_token",
-                "",
-            )
-        )
-
-        claim_code = str(
-            form.get(
-                "claim_code",
                 "",
             )
         )
@@ -664,20 +603,9 @@ def create_web_app(
             )
         )
 
-        key = (
-            "claim:"
-            + client_address(request)
-        )
-
         error = None
 
-        if limiter.blocked(key):
-            error = (
-                "Too many failed attempts. "
-                "Wait a few minutes and try again."
-            )
-
-        elif not valid_csrf(
+        if not valid_csrf(
             request,
             csrf,
         ):
@@ -685,23 +613,6 @@ def create_web_app(
                 "Your session expired. "
                 "Reload the page and try again."
             )
-
-        elif not state["claim_code"]:
-            error = (
-                "No active claim code exists. "
-                "Restart Firestarter to generate one."
-            )
-
-        elif not hmac.compare_digest(
-            normalize_claim_code(
-                claim_code
-            ),
-            normalize_claim_code(
-                state["claim_code"]
-            ),
-        ):
-            limiter.fail(key)
-            error = "Invalid claim code."
 
         elif not USERNAME_PATTERN.fullmatch(
             username
@@ -726,7 +637,7 @@ def create_web_app(
         if error:
             return templates.TemplateResponse(
                 request=request,
-                name="claim.html",
+                name="setup_admin.html",
                 context=template_context(
                     request,
                     error=error,
@@ -750,9 +661,6 @@ def create_web_app(
                 "/login",
                 status_code=303,
             )
-
-        state["claim_code"] = None
-        limiter.clear(key)
 
         request.session.clear()
 
@@ -792,7 +700,7 @@ def create_web_app(
 
         if admin is None:
             return RedirectResponse(
-                "/claim",
+                "/setup/admin",
                 status_code=303,
             )
 

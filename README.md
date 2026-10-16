@@ -157,6 +157,8 @@ The setup wizard covers:
 
 Discord and Fireshare credentials are stored by Firestarter and are not required in the Compose file.
 
+On a brand-new installation, the first person who can access the WebUI can create the Firestarter administrator account. Do not expose an unconfigured Firestarter instance to the public Internet.
+
 ## Your Discord Bot
 
 Firestarter does **not** provide a shared Discord bot.

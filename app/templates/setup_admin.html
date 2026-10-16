@@ -4,20 +4,21 @@
 
 <div class="auth-wrap">
     <section class="card auth-card">
+
         <div class="eyebrow">
             First-run setup
         </div>
 
-        <h1>Claim Firestarter</h1>
+        <h1>Create administrator</h1>
 
         <p class="lead">
-            Firestarter has not been configured
-            with a WebUI administrator yet.
+            Create the administrator account
+            you will use to manage Firestarter.
         </p>
 
         <div class="notice">
-            The one-time claim code is printed
-            in the Firestarter container logs.
+            This account controls the Firestarter WebUI.
+            Store these credentials somewhere safe.
         </div>
 
         {% if error %}
@@ -27,7 +28,7 @@
         {% endif %}
 
         <form
-            action="/claim"
+            action="/setup/admin"
             method="post"
             class="form-stack"
         >
@@ -38,17 +39,8 @@
             >
 
             <label>
-                Claim code
-                <input
-                    name="claim_code"
-                    autocomplete="off"
-                    placeholder="XXXX-XXXX-XXXX"
-                    required
-                >
-            </label>
-
-            <label>
                 Admin username
+
                 <input
                     name="username"
                     autocomplete="username"
@@ -56,11 +48,13 @@
                     minlength="3"
                     maxlength="32"
                     required
+                    autofocus
                 >
             </label>
 
             <label>
                 Admin password
+
                 <input
                     name="password"
                     type="password"
@@ -72,6 +66,7 @@
 
             <label>
                 Confirm password
+
                 <input
                     name="confirm_password"
                     type="password"
@@ -85,9 +80,11 @@
                 type="submit"
                 class="button button-primary"
             >
-                Claim Firestarter
+                Create administrator
             </button>
+
         </form>
+
     </section>
 </div>
 
